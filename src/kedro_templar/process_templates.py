@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 # settings.py
-TEMPLATES_DIR = Path('./run_parameters/templates')
+TEMPLATES_DIR = Path('./examples/base')
 OUTPUT_DIR = Path("./conf/base")
 
 
@@ -89,13 +89,23 @@ def save_result(result: Text, output_filepath: Path, replace: bool=True):
     default=False,
     type=bool
 )
+@click.option(
+    "-s",
+    "--source",
+    "config_source",
+    required=False,
+    default=False,
+    type=bool
+)
 def process_templates(
     config_path: Text,
     templates_dir: Text,
     output_dir: Text,
-    replace_existing: bool
+    replace_existing: bool,
+    config_source: Text
 ):
-    config = load_config(config_path)
+
+    config = load_config( config_source if config_source else config_path)
     environment = create_environment(templates_dir)
     for template_path in environment.list_templates():
         template = environment.get_template(template_path)
