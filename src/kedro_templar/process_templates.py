@@ -3,70 +3,11 @@ import os
 from pathlib import Path
 from typing import Text, Dict
 import click
-import yaml
-from jinja2 import Environment, FileSystemLoader
-import s3fs
-
+import settings,  templates
+from lib import utils
 log = logging.getLogger(__name__)
 
 
-# settings.py
-TEMPLATES_DIR = Path('./examples/base')
-OUTPUT_DIR = Path("./conf/base")
-aws_access_key = os.environ.get('AWS_ACCESS_KEY_ID')
-aws_secret_key = os.environ.get('AWS_SECRET_ACCESS_KEY')
-aws_region = os.environ.get('AWS_DEFAULT_REGION')
-
-# lib/templates.p
-def create_environment(templates_dir: Text) -> Environment:
-    """
-    Creates an jinja2 environment from provided directory path.
-    :param templates_dir: a path to a directory with all templates.
-    :returns: a created environment object
-    """
-    return Environment(
-        loader=FileSystemLoader(searchpath=templates_dir),
-        trim_blocks=True,
-        lstrip_blocks=True
-    )
-
-
-# lib/utils.py
-def load_config(config_path: Text) -> Dict:
-    """Loads and parases a yaml config into a dict object."""
-    return yaml.full_load(open(config_path))
-
-
-def save_result(result: Text, output_filepath: Path, replace: bool=True):
-    """
-    Saves rendered config into an output file.
-
-    :param result: a rendered template in a text format
-    :param output_filepath: a filepath where the output will be saved
-    :param replace: if set to False, it will only replace the
-                    existing file if it doesn't already exist.
-    """
-    if not replace and output_filepath.exists():
-        log.error(f"Skipping saving a file. {output_filepath} already exists!")
-        return
-
-    if not os.path.exists(output_filepath.parent):
-        log.info(f"Parent directory not found. Creating {output_filepath.parent}.")
-        os.makedirs(output_filepath.parent)
-
-    with open(output_filepath, "w") as output:
-        output.write(result)
-
-
-def download_file_from_s3(file_name, bucket):
-    """Upload a file to an S3 bucket
-    """
-    s3 = s3fs.S3FileSystem(anon=False)
-    with s3.open(bucket + '/' + file_name, 'rb') as f:
-        return yaml.full_load(f)
-
-
-# main.py
 @click.command()
 @click.option(
     "-c",
@@ -80,7 +21,7 @@ def download_file_from_s3(file_name, bucket):
     "--templates",
     "templates_dir",
     required=False,
-    default=TEMPLATES_DIR,
+    default=settings.TEMPLATES_DIR,
     type=click.Path(exists=True)
 )
 @click.option(
@@ -88,21 +29,13 @@ def download_file_from_s3(file_name, bucket):
     "--output",
     "output_dir",
     required=False,
-    default=OUTPUT_DIR,
+    default=settings.OUTPUT_DIR,
     type=click.Path(exists=True)
 )
 @click.option(
     "-f",
     "--force",
     "replace_existing",
-    required=False,
-    default=False,
-    type=bool
-)
-@click.option(
-    "-u",
-    "--upload",
-    "upload_source",
     required=False,
     default=False,
     type=bool
@@ -114,15 +47,17 @@ def process_templates(
     replace_existing: bool,
     upload_source: Text
 ):
-
-    config = load_config( s3_config if s3_config else config_path)
-    environment = create_environment(templates_dir)
+    # extend -c to accept also s3 path, @WOJTEK what do you think?
+    if str(config_path).startswith('s3://'):
+        config = utils.download_file_from_s3(config_path)
+    else:
+        config = utils.load_config(config_path)
+    environment = templates.create_environment(templates_dir)
     for template_path in environment.list_templates():
         template = environment.get_template(template_path)
         result = template.render(config)
         output_path = Path(output_dir) / template_path
-        save_result(result, output_path, replace_existing)
-    log.info('Filling templates was finished')
+        utils.save_result(result, output_path, replace_existing)
 
 
 if __name__ == "__main__":

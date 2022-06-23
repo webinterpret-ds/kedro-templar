@@ -17,3 +17,5 @@ def templar(metadata):
     """Run script that fills templates"""
     pt.process_templates()
     log.info('Plugin templar finished run')
+
+
