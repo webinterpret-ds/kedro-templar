@@ -40,16 +40,23 @@ log = logging.getLogger(__name__)
     default=False,
     type=bool
 )
+@click.option(
+    "-e",
+    "--export",
+    "export_path",
+    required=False,
+    type=click.Path(exists=True)
+)
 def process_templates(
     config_path: Text,
     templates_dir: Text,
     output_dir: Text,
     replace_existing: bool,
-    upload_source: Text
+    export_path: Text
 ):
     # extend -c to accept also s3 path, @WOJTEK what do you think?
     if str(config_path).startswith('s3://'):
-        config = utils.download_file_from_s3(config_path)
+        config = utils.download_config_from_s3(config_path)
     else:
         config = utils.load_config(config_path)
     environment = templates.create_environment(templates_dir)
@@ -58,6 +65,9 @@ def process_templates(
         result = template.render(config)
         output_path = Path(output_dir) / template_path
         utils.save_result(result, output_path, replace_existing)
+    if not export_path:
+        export_path = utils.get_path(config)
+    utils.upload_config_to_s3(export_path, config)
 
 
 if __name__ == "__main__":
