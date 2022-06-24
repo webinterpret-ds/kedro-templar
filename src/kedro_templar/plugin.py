@@ -1,5 +1,5 @@
 import click
-import process_templates as pt
+from . import process_templates as pt
 import logging
 
 log = logging.getLogger(__name__)
@@ -11,11 +11,13 @@ def commands():
     pass
 
 
-@commands.command()
+@commands.group()
 @click.pass_obj
 def templar(metadata):
     """Run script that fills templates"""
-    pt.process_templates()
     log.info('Plugin templar finished run')
 
-
+#
+templar.add_command(pt.apply)
+templar.add_command(pt.upload)
+templar.add_command(pt.download)

@@ -10,3 +10,11 @@ AWS_SECRET_ACCESS_KEY
 AWS_DEFAULT_REGION
 using export
 eg export AWS_DEFAULT_REGION=eu-west-2
+
+HOW to build plugin:
+type in main folder
+pip install .
+
+
+example 
+kedro templar process-templates -c './parameters.yaml '
