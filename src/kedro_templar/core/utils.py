@@ -41,7 +41,11 @@ def save_result(result: Text, output_filepath: Path, replace: bool = True):
         os.makedirs(output_filepath.parent)
 
     with open(output_filepath, "w") as output:
-        output.write(result)
+        if type(result)==str:
+            output.write(result)
+        else:
+            output.write(yaml.dump(result))
+            log.info('saved to '+ str(output_filepath))
 
 
 def download_config_from_s3(file_path: Text):
@@ -52,12 +56,13 @@ def download_config_from_s3(file_path: Text):
         return yaml.full_load(f)
 
 
-def upload_config_to_s3( path_to_upload):
+def upload_config_to_s3( path_to_upload: Text, path_of_config: Text):
     """uploading config data to s3
     :param path_to_upload: name of bucket where particular run is stored, c
     """
+    config = load_config(path_of_config)
     s3 = s3fs.S3FileSystem(anon=False)
-    with s3.open(path_to_upload, 'wb') as f:
-        f.write(yaml.dump(path_to_upload))
+    with s3.open(path_to_upload, 'w') as f:
+        f.write(yaml.dump(config))
 
 

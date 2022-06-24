@@ -96,7 +96,7 @@ def download(
     """downloads only file from s3"""
     utils.check_folder_structure()
     config = utils.download_config_from_s3(config_path)
-    utils.save_result(config, Path(output_dir) / Path('parameters.yml'), replace_existing)
+    utils.save_result(config, Path(output_dir) / Path(os.path.basename(config_path)), replace_existing)
 
 
 @click.command()
@@ -105,12 +105,21 @@ def download(
     "--file",
     "output_path",
     required=True,
-    type=click.Path(exists=True)
+    type=str
+)
+@click.option(
+    "-c",
+    "--config",
+    "path_of_config",
+    required=False,
+    default=settings.DEFAULT_CONFIG,
+    type=str
 )
 def upload(
-        output_path: Text
+        output_path: Text,
+        path_of_config: Text
 ):
-    utils.upload_config_to_s3(output_path)
+    utils.upload_config_to_s3(output_path, path_of_config)
 
 
 if __name__ == "__main__":

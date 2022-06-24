@@ -18,3 +18,5 @@ pip install .
 
 example 
 kedro templar process-templates -c './parameters.yaml '
+
+kedro templar download -f 's3://your path in s3/your_configname.yml'
