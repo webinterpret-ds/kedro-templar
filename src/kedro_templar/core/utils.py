@@ -4,10 +4,19 @@ import logging
 import os
 from pathlib import Path
 from typing import Text, Dict
-
+from ..import settings
 
 log = logging.getLogger(__name__)
 
+
+def check_folder_structure():
+    """on every run check if it fits to directories from settings"""
+    directories = [settings.TEMPLATES_DIR,
+                   settings.OUTPUT_DIR,
+                   settings.CONFIG_OUTPUT_DIR]
+    for dir in directories:
+        if not os.path.exists(dir):
+            os.makedirs(dir)
 
 def load_config(config_path: Text) -> Dict:
     """Loads and parases a yaml config into a dict object."""
@@ -39,7 +48,6 @@ def download_config_from_s3(file_path: Text):
     """Upload a file to an S3 bucket
     """
     s3 = s3fs.S3FileSystem(anon=False)
-    log.info(s3.info())
     with s3.open(file_path, 'rb') as f:
         return yaml.full_load(f)
 
