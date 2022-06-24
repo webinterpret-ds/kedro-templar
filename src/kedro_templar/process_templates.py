@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Text, Dict
 import click
 from . import settings, templates
-from .lib import utils
+from .core import utils
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ def apply(
     "--file",
     "config_path",
     required=True,
-    type=click.Path(exists=True)
+    type=str
 )
 @click.option(
     "-o",
@@ -88,7 +88,7 @@ def apply(
     type=bool
 )
 def download(
-        config_path: Path,
+        config_path: Text,
         output_dir: Text,
         replace_existing: bool
 ):

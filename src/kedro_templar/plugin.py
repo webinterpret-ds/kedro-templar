@@ -17,7 +17,7 @@ def templar(metadata):
     """Run script that fills templates"""
     log.info('Plugin templar finished run')
 
-#
+
 templar.add_command(pt.apply)
 templar.add_command(pt.upload)
 templar.add_command(pt.download)
