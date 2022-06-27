@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
     "--templates",
     "templates_dir",
     required=False,
-    default=settings.TEMPLATES_DIR,
+    default=TEMPLATES_DIR,
     type=click.Path(exists=True)
 )
 @click.option(
