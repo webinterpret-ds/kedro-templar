@@ -6,17 +6,9 @@ from pathlib import Path
 from typing import Text, Dict
 from ..import settings
 
+
 log = logging.getLogger(__name__)
 
-
-def check_folder_structure():
-    """on every run check if it fits to directories from settings"""
-    directories = [settings.TEMPLATES_DIR,
-                   settings.OUTPUT_DIR,
-                   settings.CONFIG_OUTPUT_DIR]
-    for dir in directories:
-        if not os.path.exists(dir):
-            os.makedirs(dir)
 
 def load_config(config_path: Text) -> Dict:
     """Loads and parases a yaml config into a dict object."""
@@ -41,11 +33,12 @@ def save_result(result: Text, output_filepath: Path, replace: bool = True):
         os.makedirs(output_filepath.parent)
 
     with open(output_filepath, "w") as output:
-        if type(result)==str:
+        if isinstance(result, str):
             output.write(result)
+            log.info('String saved to ' + str(output_filepath))
         else:
             output.write(yaml.dump(result))
-            log.info('saved to '+ str(output_filepath))
+            log.info('Yaml saved to '+ str(output_filepath))
 
 
 def download_config_from_s3(file_path: Text):

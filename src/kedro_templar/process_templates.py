@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
     "--templates",
     "templates_dir",
     required=False,
-    default=TEMPLATES_DIR,
+    default=settings.TEMPLATES_DIR.makedir(exist_ok=True),
     type=click.Path(exists=True)
 )
 @click.option(
@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
     "--output",
     "output_dir",
     required=False,
-    default=settings.OUTPUT_DIR,
+    default=settings.OUTPUT_DIR.makedir(exist_ok=True),
     type=click.Path(exists=True)
 )
 @click.option(
@@ -54,7 +54,6 @@ def apply(
         output_dir: Text,
         replace_existing: bool
 ):
-    utils.check_folder_structure()
     config = utils.load_config(config_path)
     environment = templates.create_environment(templates_dir)
     for template_path in environment.list_templates():
@@ -77,8 +76,7 @@ def apply(
     "--output",
     "output_dir",
     required=False,
-    default=settings.CONFIG_OUTPUT_DIR,
-    type=str #click.Path(exists=True)
+    default=settings.CONFIG_OUTPUT_DIR.makedir(exist_ok=True)
 )
 @click.option(
     "-r",
@@ -94,9 +92,8 @@ def download(
         replace_existing: bool
 ):
     """downloads only file from s3"""
-    utils.check_folder_structure()
     config = utils.download_config_from_s3(config_path)
-    utils.save_result(config, Path(output_dir) / Path(os.path.basename(config_path)), replace_existing)
+    utils.save_result(config, Path(output_dir) / Path(config_path).name, replace_existing)
 
 
 @click.command()
@@ -112,7 +109,7 @@ def download(
     "--config",
     "path_of_config",
     required=False,
-    default=settings.DEFAULT_CONFIG,
+    default=settings.DEFAULT_CONFIG.makedir(exist_ok=True),
     type=str
 )
 def upload(

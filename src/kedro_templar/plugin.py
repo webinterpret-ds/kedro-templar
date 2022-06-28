@@ -5,9 +5,9 @@ import logging
 log = logging.getLogger(__name__)
 
 
-@click.group(name="JSON")
+@click.group(name="YML")
 def commands():
-    """Kedro plugin for printing the pipeline in JSON format"""
+    """Kedro plugin for filling config templates """
     pass
 
 
