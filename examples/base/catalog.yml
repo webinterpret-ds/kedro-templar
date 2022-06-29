@@ -1,0 +1,6 @@
+
+sample_data:
+  type: pandas.CSVDataSet
+  save_args:
+    index: True
+  filepath: s3://your_bucket/{{run_name}}/{{another_subname}}/data/sample_data.csv

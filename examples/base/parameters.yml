@@ -1,0 +1,4 @@
+dates:
+    items_limit: 500
+    start_date: {{gmv_dates.start_date}}
+    end_date: {{gmv_dates.end_date}}
