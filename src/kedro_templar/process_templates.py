@@ -1,8 +1,9 @@
 import logging
-import os
 from pathlib import Path
-from typing import Text, Dict
+from typing import Text
+
 import click
+
 from . import settings, templates
 from .core import utils
 
@@ -21,32 +22,28 @@ log = logging.getLogger(__name__)
     "-t",
     "--templates",
     "templates_dir",
-    required=False,
-    default=settings.TEMPLATES_DIR.makedir(exist_ok=True),
+    default="templates",
+    envvar="TEMPLAR_TEMPLATES_DIR",
+    required=True,
     type=click.Path(exists=True)
 )
 @click.option(
     "-o",
     "--output",
     "output_dir",
-    required=False,
-    default=settings.OUTPUT_DIR.makedir(exist_ok=True),
+    default="conf",
+    envvar="TEMPLAR_OUTPUT_DIR",
+    required=True,
     type=click.Path(exists=True)
 )
 @click.option(
     "-f",
     "--force",
     "replace_existing",
+    is_flag=True,
     required=False,
     default=False,
     type=bool
-)
-@click.option(
-    "-e",
-    "--export",
-    "export_path",
-    required=False,
-    type=click.Path(exists=True)
 )
 def apply(
         config_path: Text,
@@ -65,59 +62,45 @@ def apply(
 
 @click.command()
 @click.option(
-    "-f",
-    "--file",
-    "config_path",
+    "-i",
+    "--input_path",
+    "input_path",
     required=True,
     type=str
 )
 @click.option(
     "-o",
     "--output",
-    "output_dir",
-    required=False,
-    default=settings.CONFIG_OUTPUT_DIR.makedir(exist_ok=True)
-)
-@click.option(
-    "-r",
-    "--replace",
-    "replace_existing",
-    required=False,
-    default=True,
-    type=bool
+    "output_path",
+    required=True,
 )
 def download(
-        config_path: Text,
-        output_dir: Text,
-        replace_existing: bool
+        input_path: Text,
+        output_path: Text
 ):
     """downloads only file from s3"""
-    config = utils.download_config_from_s3(config_path)
-    utils.save_result(config, Path(output_dir) / Path(config_path).name, replace_existing)
+    file_data = utils.download_file_from_s3(input_path)
+    with open(output_path, "wb") as f:
+        f.write(file_data)
 
 
 @click.command()
 @click.option(
-    "-f",
-    "--file",
+    "-i",
+    "--input",
+    "input_path",
+    required=True,
+    type=click.Path(exists=True)
+)
+@click.option(
+    "-o",
+    "--output",
     "output_path",
     required=True,
     type=str
 )
-@click.option(
-    "-c",
-    "--config",
-    "path_of_config",
-    required=False,
-    default=settings.DEFAULT_CONFIG.makedir(exist_ok=True),
-    type=str
-)
 def upload(
-        output_path: Text,
-        path_of_config: Text
+        input_path: Text,
+        output_path: Text
 ):
-    utils.upload_config_to_s3(output_path, path_of_config)
-
-
-if __name__ == "__main__":
-    apply()
+    utils.upload_file_to_s3(input_path, output_path)

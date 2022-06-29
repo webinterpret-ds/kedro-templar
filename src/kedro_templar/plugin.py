@@ -1,14 +1,14 @@
 import click
-from . import process_templates as pt
 import logging
+from .process_templates import apply, upload, download
 
 log = logging.getLogger(__name__)
 
 
-@click.group(name="YML")
+@click.group(name="templar")
 def commands():
     """Kedro plugin for filling config templates """
-    pass
+    ...
 
 
 @commands.group()
@@ -18,6 +18,6 @@ def templar(metadata):
     log.info('Plugin templar finished run')
 
 
-templar.add_command(pt.apply)
-templar.add_command(pt.upload)
-templar.add_command(pt.download)
+templar.add_command(apply)
+templar.add_command(upload)
+templar.add_command(download)

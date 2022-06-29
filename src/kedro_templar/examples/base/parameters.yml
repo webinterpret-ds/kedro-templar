@@ -1,8 +1,0 @@
-data_sync:
-  local_directory_path: data/00_input
-  remote_directory_path: remote_directory/experiments/our_folder/data/00_input
-gmv_dates:
-    threshold: 0.02
-    items_limit: 500
-    start_date: {{gmv_dates.start_date}}
-    end_date: {{gmv_dates.end_date}}

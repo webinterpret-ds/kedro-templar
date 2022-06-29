@@ -1,5 +1,5 @@
-run_name: run_adriana
-another_subname: your_fav_subfolder
+run_name: run_1
+another_subname: subfolder
 gmv_dates:
     start_date: 2030-04-04
     end_date: 2040-04-06

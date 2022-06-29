@@ -35,27 +35,28 @@ def save_result(result: Text, output_filepath: Path, replace: bool = True):
     with open(output_filepath, "w") as output:
         if isinstance(result, str):
             output.write(result)
-            log.info('String saved to ' + str(output_filepath))
         else:
             output.write(yaml.dump(result))
-            log.info('Yaml saved to '+ str(output_filepath))
+        log.info('Output saved to '+ str(output_filepath))
 
 
-def download_config_from_s3(file_path: Text):
-    """Upload a file to an S3 bucket
+def download_file_from_s3(file_path: Text):
+    """
+    Upload a file to an S3 bucket
+    :param file_path: an S3 path to a file
+    :returns: content of the downloaded file
     """
     s3 = s3fs.S3FileSystem(anon=False)
     with s3.open(file_path, 'rb') as f:
-        return yaml.full_load(f)
+        return f.read()
 
 
-def upload_config_to_s3( path_to_upload: Text, path_of_config: Text):
-    """uploading config data to s3
-    :param path_to_upload: name of bucket where particular run is stored, c
+def upload_file_to_s3(input_path: Text, output_path: Text):
     """
-    config = load_config(path_of_config)
+    Uploading a file data to s3
+    :param input_path: input file that will be uploaded
+    :param output_path: an S3 path where the fill will be saved
+    """
     s3 = s3fs.S3FileSystem(anon=False)
-    with s3.open(path_to_upload, 'w') as f:
-        f.write(yaml.dump(config))
-
-
+    with s3.open(output_path, 'w') as f:
+        f.write(open(input_path).read())

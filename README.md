@@ -1,54 +1,71 @@
-# Kedro Templar app
+# Kedro Templar 
 
-# What is it?
-Its a app that helps to create folder structure in eg AWS to fill templates,
-based on parameters, eg depending on run name.
-Example: If you want take parameters from bucket and store it in run_name folder
+# About
+A plugin build for [Kedro](https://kedro.readthedocs.io/en/stable/) to support templating configuration files.
+Using this plugin you can specify a templates for your configuration files such as `catalog.yaml`, `paramters.yaml` 
+and fill them automatically using one file with specified variables.
+Using this approach you can easily parametrize you pipeline from single point.
 
-'''
-to_s3:
-  type: PartitionedDataSet
-  dataset:
-    type: pandas.CSVDataSet
-    save_args:
-      index: True
-  path:
-    s3://your_buycket/{{your_parameter}}/data/00_input/pandas_partition/
-  filename_suffix: '.csv
-'''
+Usage examples:
+- you can store multiple simultaneous configurations and switch between them on demand.
+- change prefixes in `catalog.yaml` to reuse the same pipeline for different data,
 
-and add in parameters.yml
+## Install
+Plugin can be easily installed using pypi repository.
+```bash
+pip install kedro-templar
+```
 
-'''
-run_name: your_run_name
-'''
+## Templates
+`kedro-templar` is using [jinja2](https://jinja.palletsprojects.com/) templating engine for rendering files.
 
-Please check also example folder
+### Example
+#### catalog.yaml
+Template created for `catalog.yaml` file.
+```yaml
+sample_data:
+  type: pandas.CSVDataSet
+  save_args:
+    index: True
+  filepath: s3://your_bucket/{{run_name}}/{{another_subname}}/data/sample_data.csv
+```
+
+#### definition.yaml
+Your file that contains all variables used for templating.
+```yaml
+run_name: run_1
+another_subname: subfolder
+```
 
 
-to connect to AWS s3 please create a Environment variable /.aws config file
-AWS_ACCESS_KEY_ID
-AWS_SECRET_ACCESS_KEY
-AWS_DEFAULT_REGION
-using export
-eg export AWS_DEFAULT_REGION=eu-west-2
+## Commands
+Currently, this plugin supports 3 commands:
+### apply
+A core logic of this plugin. This command is used 
+to create config files based on provided templates and a file with variables.
 
+You can setup a default values using environment variables:
+ - `TEMPLAR_TEMPLATES_DIR` - a default directory for your templates
+ - `TEMPLAR_OUTPUT_DIR` - a default directory where templates will be rendered
 
+If no value is specified explicitly and env var is empty,
+the commands will use default value specified in the code.
 
-# How to build plugin
-type in main folder
-pip install .
+```bash
+kedro templar apply -c definition.yaml
+```
 
-# How to debug
-use same virtual environment as your kedro project, after build you can run
-your kedro in Pycharm by setting:
-as script path(path to your venv): /home/user_name/path_to_your_venv/bin/kedro
-in parameters add: templar download -f s3://your_bucket/your_folder_with_example_config/paremeters.yml
+### download
+A helper function used to download a config file from a given S3 path
+```bash
+kedro templar download -i <S3_PATH>/definition.yaml -o definition.yaml
+```
 
-# Before you run
-please add these Env variables:
+### upload
+A helper function used to upload a config file to a given S3 path
+```bash
+kedro templar upload -i definition.yaml -o <S3_PATH>/definition.yaml
+```
 
-export TEMPLATES_DIR='./templates/base'
-export OUTPUT_DIR='./conf/base'
-export CONFIG_OUTPUT_DIR='./templates/config'
-export DEFAULT_CONFIG='./templates/config/parameters.yml'
+# Contact
+Plugin was created by the Data Science team from [WebInterpret](https://www.webinterpret.com/).
