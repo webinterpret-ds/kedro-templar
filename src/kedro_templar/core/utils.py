@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 def load_config(config_path: Text) -> Dict:
     """Loads and parses a yaml config into a dict object."""
-    if config_path.lower().startswith("s3"):
+    if config_path.lower().startswith("s3://"):
         config = download_file_from_s3(config_path)
     else:
         config = open(config_path).read()

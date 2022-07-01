@@ -5,7 +5,7 @@ from typing import Text
 import click
 
 from .core import utils
-from .templates import create_environment
+from .core.templates import create_environment
 
 log = logging.getLogger(__name__)
 
