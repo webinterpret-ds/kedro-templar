@@ -4,15 +4,18 @@ import logging
 import os
 from pathlib import Path
 from typing import Text, Dict
-from ..import settings
 
 
 log = logging.getLogger(__name__)
 
 
 def load_config(config_path: Text) -> Dict:
-    """Loads and parases a yaml config into a dict object."""
-    return yaml.full_load(open(config_path))
+    """Loads and parses a yaml config into a dict object."""
+    if config_path.lower().startswith("s3"):
+        config = download_file_from_s3(config_path)
+    else:
+        config = open(config_path).read()
+    return yaml.full_load(config)
 
 
 def save_result(result: Text, output_filepath: Path, replace: bool = True):

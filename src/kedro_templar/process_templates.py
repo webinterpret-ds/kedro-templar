@@ -4,8 +4,8 @@ from typing import Text
 
 import click
 
-from . import settings, templates
 from .core import utils
+from .templates import create_environment
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
     "--config",
     "config_path",
     required=True,
-    type=click.Path(exists=True)
+    type=Text
 )
 @click.option(
     "-t",
@@ -52,7 +52,7 @@ def apply(
         replace_existing: bool
 ):
     config = utils.load_config(config_path)
-    environment = templates.create_environment(templates_dir)
+    environment = create_environment(templates_dir)
     for template_path in environment.list_templates():
         template = environment.get_template(template_path)
         result = template.render(config)
@@ -72,13 +72,16 @@ def apply(
     "-o",
     "--output",
     "output_path",
-    required=True,
+    required=False,
 )
 def download(
         input_path: Text,
         output_path: Text
 ):
     """downloads only file from s3"""
+    if not output_path:
+        output_path = Path(input_path).name
+
     file_data = utils.download_file_from_s3(input_path)
     with open(output_path, "wb") as f:
         f.write(file_data)
