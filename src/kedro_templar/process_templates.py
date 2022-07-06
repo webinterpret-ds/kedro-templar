@@ -15,6 +15,7 @@ log = logging.getLogger(__name__)
     "-c",
     "--config",
     "config_path",
+    envvar="TEMPLAR_CONFIG_PATH",
     required=True,
     type=Text
 )
