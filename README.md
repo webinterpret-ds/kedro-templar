@@ -21,7 +21,8 @@ pip install kedro-templar
 
 ### Example
 #### catalog.yaml
-Template created for `catalog.yaml` file.
+Let's create a template for `conf/base/catalog.yaml` in `templates/base/catalog.yaml`.
+
 ```yaml
 sample_data:
   type: pandas.CSVDataSet
@@ -37,6 +38,18 @@ run_name: run_1
 another_subname: subfolder
 ```
 
+#### Render templates
+To render created template with provided variables run following command:
+
+```bash
+kedro templar apply -c definition.yaml
+```
+
+If you choose to have different setup, you can check help command to see all available options:
+
+```bash
+kedro templar apply --help
+```
 
 ## Commands
 Currently, this plugin supports 3 commands:
